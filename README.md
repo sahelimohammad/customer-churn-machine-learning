@@ -1,107 +1,94 @@
-# Iranian Customer Churn | EDA, Classification & Clustering
+# Iranian Customer Churn Analysis
 
-[**فارسی — README.fa.md**](README.fa.md) · **English**
+**Exploratory Data Analysis · Classification · Clustering**
 
-An end-to-end, reproducible **data-mining / machine-learning portfolio project** based on the Iranian telecom customer churn dataset: **exploratory data analysis (EDA)**, **supervised churn classification**, and **unsupervised customer segmentation**.
+[نسخه فارسی](README.fa.md)
 
-> **Project provenance:** The original Python assignments and Persian PDF reports were provided by the project author. This repository preserves those scripts in `original_code/`. The reproducible scripts, figures, metrics, and documentation have been cleaned up and generated from the provided CSV. Therefore, the metrics shown below are results of the **updated implementation**, not results retrospectively attributed to the original scripts.
+Customer churn is an important problem for subscription-based services: understanding which customers leave and what patterns are associated with churn can support retention decisions. This project explores a telecom customer dataset and applies classification and clustering methods to it.
 
-## At a glance
+## Dataset
 
-| Dataset and result | Value |
-|---|---:|
-| Original observations | 3,150 |
-| Predictors | 13 |
-| Target | `Churn` (0 = retained, 1 = churned) |
-| Positive-class fraction | 15.7% |
-| Missing cells in source CSV | 0 |
-| Exact duplicate rows removed before ML work | 300 |
-| Classification split after deduplication | 1,995 train / 855 test |
-| Best classifier (selected by training CV) | **KNN (k=5)** |
-| Test accuracy | **93.68%** |
-| Test precision (churn = 1) | **78.99%** |
-| Test recall (churn = 1) | **81.34%** |
-| Test F1 (churn = 1) | **80.15%** |
-| Test ROC AUC | **0.955** |
-| K-Means selected k | **10** (maximum sampled silhouette) |
-| K-Means silhouette | **0.306** (1,000-row sample) |
+The [Iranian Churn dataset](https://archive.ics.uci.edu/dataset/563/iranian+churn+dataset) contains 3,150 records, 13 input features and a binary target (`Churn`). A value of `1` indicates a customer who churned.
+
+| Item | Value |
+| --- | ---: |
+| Records | 3,150 |
+| Input features | 13 |
+| Churn rate | 15.7% |
+| Missing values | 0 |
+| Exact duplicate rows | 300 |
+
+The CSV file is available in [`data/`](data/). For model evaluation, duplicate rows are removed before the train/test split, leaving 2,850 observations.
+
+## Methods
 
 ### 1. Exploratory data analysis
 
-Descriptive statistics (mean, median, mode, population variance, standard deviation), target imbalance, boxplots, histograms, and feature correlation heatmap.
+The EDA section covers descriptive statistics, class distribution, feature distributions and correlations. Plots and summary tables are saved in [`figures/eda/`](figures/eda/) and [`results/`](results/).
 
 ![Churn distribution](figures/eda/churn_distribution.png)
 
-![Correlation heatmap](figures/eda/correlation_heatmap.png)
+### 2. Classification
 
-### 2. Supervised classification
+Two algorithms are compared:
 
-The original work trained **K-Nearest Neighbors** with `k=5, 7, 13` and **Decision Trees** with `max_depth=3, 5, 8`.
+- **K-Nearest Neighbors:** `k = 5, 7, 13`
+- **Decision Tree:** `max_depth = 3, 5, 8`
 
-In the revised version, a **stratified 70/30 holdout split** is created **after exact-duplicate removal**. For each candidate, a **10-fold stratified CV** on training data estimates positive-class F1. Scaling and missing-value imputation occur **inside a scikit-learn Pipeline**, avoiding train/test and validation leakage. The model with the highest CV F1 is evaluated once on the untouched holdout test set.
+The data is split into 70% training and 30% testing with class stratification. Candidate models are compared using 10-fold stratified cross-validation on the training set. The final model is selected by F1-score for the churn class and evaluated on the test set. Preprocessing is fitted on training data only.
 
-![CV comparison](figures/classification/model_comparison_cv_f1.png)
+| Test-set metric | Result |
+| --- | ---: |
+| Selected model | KNN (`k=5`) |
+| Accuracy | 93.68% |
+| Precision (churn) | 78.99% |
+| Recall (churn) | 81.34% |
+| F1-score (churn) | 80.15% |
+| ROC AUC | 0.955 |
 
-![Holdout confusion matrix](figures/classification/confusion_matrix.png)
+![Classification confusion matrix](figures/classification/confusion_matrix.png)
 
-Additional evaluation: precision, recall, ROC AUC, average precision, ROC and precision–recall plots. A fitted classifier is saved to `models/best_classifier.joblib` (only load serialized models you trust).
+The detailed results are in [`results/classification_test_metrics.json`](results/classification_test_metrics.json).
 
-### 3. Unsupervised clustering
+### 3. Clustering
 
-**K-Means** is fitted to standardized predictor features **without `Churn`** for `k = 2 ... 12`. The maximum sampled Silhouette score determines the displayed solution; Davies–Bouldin scores are also reported. After clustering, the original `Churn` field is used **only to describe clusters**, not to fit or select them. Cluster IDs are arbitrary and must **not** be compared directly to class labels as if they were predictions.
+K-Means is applied with cluster counts from 2 to 12. Silhouette Score and Davies–Bouldin Index are used to compare the alternatives. The largest sampled Silhouette Score occurs at **10 clusters** (`0.306`, calculated on a reproducible sample of 1,000 observations).
 
-![Clustering model selection](figures/clustering/k_selection_metrics.png)
+`Churn` is excluded from clustering features. Churn rates are examined afterward to describe the resulting groups; cluster IDs are not class predictions.
 
-![PCA visualization](figures/clustering/pca_cluster_projection.png)
+![Cluster selection metrics](figures/clustering/k_selection_metrics.png)
 
-## Repository files
+## Project structure
 
 ```text
 customer-churn-machine-learning/
-├── README.md                   # English
-├── README.fa.md                # فارسی
+├── data/                   # Dataset and source information
+├── eda/                    # Exploratory analysis
+├── classification/         # KNN and Decision Tree
+├── clustering/             # K-Means
+├── figures/                # Saved charts
+├── results/                # Evaluation metrics and tables
+├── models/                 # Trained classifier
+├── reports/                # Course reports (PDF)
+├── original_code/          # Earlier course scripts
+├── docs/                   # Methodology
+├── tests/                  # Data integrity checks
+├── run_all.py
 ├── requirements.txt
-├── run_all.py                  # Runs the three updated scripts
-├── data/
-│   ├── CustomerChurn.csv
-│   └── README.md                # Attribution + dataset license
-├── eda/eda.py
-├── classification/classification.py
-├── clustering/clustering.py
-├── original_code/              # Three original Python files, unchanged
-├── reports/                    # Three original Persian PDF reports, identifying details redacted
-├── figures/                    # Reproduced PNG plots by task
-├── results/                    # Computed CSV, JSON, and evaluation TXT files
-├── models/best_classifier.joblib
-├── docs/METHODOLOGY.md         # Changes, limitations and interpretation
-├── tests/test_data_integrity.py
-└── .github/workflows/check.yml # Basic GitHub Actions checks
+├── README.md
+└── README.fa.md
 ```
 
-## Run locally
+## Installation and usage
 
-Requires **Python 3.10+**. No internet is needed for data loading; the CSV is included.
-
-```bash
-# From the extracted repository folder:
-python -m venv .venv
-```
-
-Activate the virtual environment:
-
-- Windows PowerShell: `.venv\Scripts\Activate.ps1`
-- Windows CMD: `.venv\Scripts\activate.bat`
-- Linux/macOS: `source .venv/bin/activate`
-
-Then:
+Python 3.10 or newer is recommended.
 
 ```bash
 python -m pip install -r requirements.txt
 python run_all.py
-python -m unittest discover -s tests -v
 ```
 
-You can also run each stage independently:
+To run an individual stage:
 
 ```bash
 python eda/eda.py
@@ -109,28 +96,19 @@ python classification/classification.py
 python clustering/clustering.py
 ```
 
-Outputs are written into `figures/`, `results/`, and `models/`. The included plots and metrics were actually generated from the included dataset.
+To run the data integrity tests:
 
-## Original work vs. revised implementation
+```bash
+python -m unittest discover -s tests -v
+```
 
-**Original files** are unchanged under `original_code/`; the three original PDF coursework reports remain in `reports/`, with **only identifying cover-page details redacted for public sharing**. Those reports may describe choices or older results that differ from the revised pipeline. The original scripts call `fetch_ucirepo(id=563)` even though they also load the local CSV; the updated scripts avoid this unnecessary online dependency.
+The scripts read the CSV included in this repository. On completion, charts and result files are saved under `figures/` and `results/`.
 
-Key improvements: reproducible execution, corrected preprocessing and fitted scaling, duplicate removal before splitting, stratification, leakage-aware cross-validation, real saved evaluation results, meaningful (non-label-based) clustering evaluation, and graphical artifacts.
+## Notes
 
-More detail: [Methodology, corrections, and limitations](docs/METHODOLOGY.md).
+- Classification metrics refer to the implementation in `classification/` and its deduplicated train/test split. The PDF reports document the course exercises and may use different calculations.
+- Exact duplicate removal is a preprocessing decision; the dataset does not provide a unique customer identifier.
+- Clustering metrics describe separation in feature space, not predictive accuracy.
+- This is an academic dataset and does not establish real-world deployment performance.
 
-## Limitations
-
-- The dataset is small and from a single historical telecom source, so performance may not generalize to real deployment.
-- Churn is an imbalanced target; accuracy alone is insufficient. F1, precision, recall and PR performance matter.
-- Deduplication is a modeling decision: exact duplicate rows may represent legitimate different customers, as no anonymous unique customer ID is present in the provided CSV. Results depend on this choice.
-- Silhouette is **estimated on a fixed 1,000-row sample**, not on all records; the PCA chart is a projection, not proof of cluster separation.
-- This is a portfolio demonstration, **not** a production churn prediction service or causal analysis.
-
-## Dataset credit and license
-
-**Iranian Churn [Dataset]. (2020). UCI Machine Learning Repository.** https://doi.org/10.24432/C5JW3Z
-
-UCI dataset page: https://archive.ics.uci.edu/dataset/563/iranian+churn+dataset
-
-The **dataset** is supplied under **Creative Commons Attribution 4.0 International (CC BY 4.0)**; the required attribution is provided above. This does not automatically give the project code an open-source software license. A software license can be added by the author if desired.
+**Dataset citation:** Iranian Churn. (2020). UCI Machine Learning Repository. [DOI: 10.24432/C5JW3Z](https://doi.org/10.24432/C5JW3Z). Dataset license: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
