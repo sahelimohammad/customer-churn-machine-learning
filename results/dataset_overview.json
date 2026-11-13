@@ -1,0 +1,12 @@
+{
+  "rows": 3150,
+  "columns": 14,
+  "predictor_features": 13,
+  "missing_cells": 0,
+  "exact_duplicate_rows": 300,
+  "target_counts": {
+    "0": 2655,
+    "1": 495
+  },
+  "churn_rate": 0.15714285714285714
+}

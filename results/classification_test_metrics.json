@@ -1,0 +1,32 @@
+{
+  "selection_criterion": "maximum 10-fold training CV F1 for churn=1; tie-break by recall",
+  "best_model": "KNN (k=5)",
+  "seed": 42,
+  "original_rows": 3150,
+  "removed_duplicate_rows": 300,
+  "rows_after_dedup": 2850,
+  "training_rows": 1995,
+  "test_rows": 855,
+  "train_churn_count": 312,
+  "test_churn_count": 134,
+  "test_accuracy": 0.9368421052631579,
+  "test_precision_churn": 0.7898550724637681,
+  "test_recall_churn": 0.8134328358208955,
+  "test_f1_churn": 0.8014705882352942,
+  "test_roc_auc": 0.9545252240876064,
+  "test_average_precision": 0.8762002894742079,
+  "confusion_matrix_labels": [
+    0,
+    1
+  ],
+  "confusion_matrix": [
+    [
+      692,
+      29
+    ],
+    [
+      25,
+      109
+    ]
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "original_rows": 3150,
+  "removed_duplicate_rows": 300,
+  "rows_used": 2850,
+  "k_values_tested": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "k_selection": "maximum silhouette from a reproducible 1000-observation sample",
+  "silhouette_is_sampled": true,
+  "silhouette_sample_size": 1000,
+  "best_k": 10,
+  "best_silhouette_sample_1000": 0.30565760422469374,
+  "best_davies_bouldin": 1.1289121233408947,
+  "target_used_for_fitting": false,
+  "churn_used_only_for_post_hoc_profiling": true
+}
